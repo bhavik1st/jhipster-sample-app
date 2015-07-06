@@ -49,6 +49,8 @@
         <spring-security.version>4.0.0.RELEASE</spring-security.version>
         <swagger-springmvc.version>0.9.5</swagger-springmvc.version>
         <usertype-core.version>3.2.0.GA</usertype-core.version>
+        <spring-social-google.version>1.0.0.RELEASE</spring-social-google.version>
+        <spring-social-facebook.version>1.1.1.RELEASE</spring-social-facebook.version>
     </properties>
 
     <dependencies>
@@ -357,6 +359,20 @@
             <groupId>fr.ippon.spark.metrics</groupId>
             <artifactId>metrics-spark-reporter</artifactId>
             <version>${metrics-spark-reporter.version}</version>
+        </dependency>
+        <!-- social -->
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-google</artifactId>
+            <version>${spring-social-google.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-facebook</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-security</artifactId>
         </dependency>
     </dependencies>
     <build>

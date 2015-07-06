@@ -1,7 +1,8 @@
 {
-    "register": {
+    "social": {
         "title": "Registration",
         "form": {
+            "confirm": "You're about to create a new account on <strong>{{appTitle}}</strong> using a login from",
             "button": "Register"
         },
         "messages": {
@@ -13,17 +14,21 @@
                     "pattern": "Your login can only contain lower-case letters and digits."
                 }
             },
-            "success": "<strong>Registration saved!</strong> Please check your email for confirmation.",
+            "success": "<strong>Registration saved!</strong>",
             "error": {
                 "fail": "<strong>Registration failed!</strong> Please try again later.",
                 "userexists": "<strong>Login name already registered!</strong> Please choose another one.",
+                "rejected": "<strong>Registration failed</strong> because you rejected access to your account.",
                 "emailexists": "<strong>E-mail is already in use!</strong> Please choose another one."
             }
         },
-        "social": {
-            "or": "or",
-            "google": "Register with Google",
-            "facebook": "Register with Facebook"
-         }
+        "google": {
+            "register": "Register with Google",
+            "login": "Sign in with Google"
+        },
+        "facebook": {
+            "register": "Login with Facebook",
+            "login": "Sign in with Facebook"
+        }
     }
 }

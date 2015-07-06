@@ -31,6 +31,17 @@ spring:
             hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
     messages:
         cache-seconds: 1
+    social:
+        # see https://developers.google.com/+/web/signin/server-side-flow#step_1_create_a_client_id_and_client_secret
+        google:
+            clientId: 849281270323-r1iepm02kgbcalq5im9sin0otle4ragl.apps.googleusercontent.com
+            clientSecret: wK_37xy1K8sq30X_YQynSiI-
+
+
+        # see https://developers.facebook.com/docs/facebook-login/v2.2
+        facebook:
+            clientId: 1465127597042928
+            clientSecret: 341d18304d759c8660bbee9d0e7e2f58
     thymeleaf:
         mode: XHTML
         cache: false

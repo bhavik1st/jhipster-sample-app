@@ -20,6 +20,8 @@
     "angular-dynamic-locale": "0.1.27",
     "angular-local-storage": "0.2.0",
     "swagger-ui": "2.0.24",
+    "bootstrap-social": "4.9.1",
+    "font-awesome": "~4.3.0",
     "angular-cache-buster": "0.4.3",
     "ngInfiniteScroll": "1.2.0"
   },

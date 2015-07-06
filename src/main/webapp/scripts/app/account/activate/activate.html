@@ -7,6 +7,10 @@
                 <strong>Your user has been activated.</strong> Please authenticate.
             </div>
 
+            <div class="alert alert-info" ng-show="activationRequired" translate="activate.messages.activationRequired">
+                <strong>Activation Required.</strong> Your account has been created but you need to verify your email.
+            </div>
+            
             <div class="alert alert-danger" ng-show="error" translate="activate.messages.error">
                 <strong>Your user could not be activated.</strong> Please use the registration form to sign up.
             </div>

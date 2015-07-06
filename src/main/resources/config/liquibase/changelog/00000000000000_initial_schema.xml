@@ -64,6 +64,40 @@
             <column name="email" type="varchar(100)"/>
         </createIndex>
         
+        <createTable tableName="JHI_UserConnection">
+            <column name="userId" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="providerId" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="providerUserId" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rank" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="displayName" type="varchar(255)"/>
+            <column name="profileUrl" type="varchar(255)"/>
+            <column name="imageUrl" type="varchar(255)"/>
+            <column name="accessToken" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="secret" type="varchar(255)"/>
+            <column name="refreshToken" type="varchar(255)"/>
+            <column name="expireTime" type="bigint"/>
+        </createTable>
+        
+        <addPrimaryKey tableName="JHI_UserConnection" columnNames="userId, providerId, providerUserId"/>
+        
+        <addUniqueConstraint tableName="JHI_UserConnection" columnNames="userId, providerId, rank"/>
+
+<!--         <addForeignKeyConstraint baseColumnNames="userId" -->
+<!--                                  baseTableName="JHI_UserConnection" -->
+<!--                                  constraintName="UserConnectionRank" -->
+<!--                                  referencedColumnNames="login" -->
+<!--                                  referencedTableName="JHI_USER"/> -->
+
         <createTable tableName="JHI_AUTHORITY">
             <column name="name" type="varchar(50)">
                 <constraints primaryKey="true" nullable="false"/>

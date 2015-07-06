@@ -113,10 +113,11 @@
 
                 <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary" translate="register.form.button">Register</button>
             </form>
-            <p></p>
-            <div class="alert alert-warning" translate="global.messages.info.authenticated">
-                If you want to <a href="#/login">authenticate</a>, you can try the default accounts:<br/>- Administrator (login="admin" and password="admin") <br/>- User (login="user" and password="user").
-            </div>
+        </div>
+        <div ng-cloak class="col-md-8 col-md-offset-2" ng-hide="registerAccount.email">
+            <h3 class="text-center col-md-12">{{'register.social.or' | translate}}</h3>
+            <jh-social class="col-md-6" type='block' external-account-provider="'google'">{{'register.social.google' | translate}}</jh-social>
+            <jh-social class="col-md-6" type='block' external-account-provider="'facebook'">{{'register.social.facebook' | translate}}</jh-social>
         </div>
     </div>
 </div>
