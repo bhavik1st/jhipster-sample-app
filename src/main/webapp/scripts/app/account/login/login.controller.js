@@ -1,9 +1,13 @@
 'use strict';
 
 angular.module('jhipsterApp')
-    .controller('LoginController', function ($rootScope, $scope, $state, $timeout, Auth) {
+    .controller('LoginController', function ($rootScope, $scope, $state, $location, $timeout, Auth) {
         $scope.user = {};
         $scope.errors = {};
+        
+        if ($location.search().error) {
+        	$scope.errorAccessDenied = $location.search().error == 'access_denied';
+        }
 
         $scope.rememberMe = true;
         $timeout(function (){angular.element('[ng-model="username"]').focus();});

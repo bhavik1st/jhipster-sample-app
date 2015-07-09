@@ -104,7 +104,7 @@ public class SocialConfiger implements SocialConfigurer {
     public ProviderSignInController providerSignInController(ConnectionFactoryLocator connectionFactoryLocator, SignInAdapter signInAdapter) {
         ProviderSignInController providerSigninController = new ProviderSignInController(connectionFactoryLocator, getUsersConnectionRepository(connectionFactoryLocator), signInAdapter);
         providerSigninController.setSignUpUrl("/#/register-social");
-        providerSigninController.setSignInUrl("/#/register-social");
+        providerSigninController.setSignInUrl("/#/login");
         return providerSigninController;
     }
 

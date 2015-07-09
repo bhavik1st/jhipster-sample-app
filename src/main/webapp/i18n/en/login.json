@@ -9,7 +9,8 @@
         },
         "messages": {
             "error": {
-                "authentication": "<strong>Authentication failed!</strong> Please check your credentials and try again."
+                "authentication": "<strong>Authentication failed!</strong> Please check your credentials and try again.",
+                "rejected": "<strong>Operation failed!</strong> You rejected access to your account."
             }
         },
         "password" : {

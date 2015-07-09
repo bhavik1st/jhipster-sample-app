@@ -1,7 +1,8 @@
 {
-    "register": {
+    "social": {
         "title": "Création de compte utilisateur",
         "form": {
+            "confirm": "Vous êtes sur le point de créer un nouveau compte sur l'aide d'une connexion <strong>{{appTitle}}</strong> partir",
             "button": "Enregistrement"
         },
         "messages": {
@@ -20,10 +21,13 @@
                 "emailexists": "<strong>Cet E-mail est déjà utilisé!</strong> Veuillez en choisir un autre."
             }
         },
-        "social": {
-            "or": "ou",
-            "google": "Enregistrez vous avec Google",
-            "facebook": "Enregistrez vous avec Facebook"
+        "google": {
+            "register": "Register with Google",
+            "login": "Sign in with Google"
+        },
+        "facebook": {
+            "register": "Login with Facebook",
+            "login": "Sign in with Facebook"
         }
     }
 }
