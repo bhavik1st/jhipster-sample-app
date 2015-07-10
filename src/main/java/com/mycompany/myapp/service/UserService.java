@@ -130,21 +130,25 @@ public class UserService {
         userRepository.save(newUser);
         
         if (connection != null) {
-	        ConnectionRepository connectionRepository = usersConnectionRepository.createConnectionRepository(login);
-	        if (connectionRepository.findConnections(connection.getKey().getProviderId()).isEmpty()) {
-	        	connectionRepository.addConnection(connection);
-	        } else {
-	        	connectionRepository.updateConnection(connection);
-	        }
+        	addConnection(login, connection);
         }
         
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
 
+    public void addConnection(String login, Connection<?> connection) {
+    	ConnectionRepository connectionRepository = usersConnectionRepository.createConnectionRepository(login);
+        if (connectionRepository.findConnections(connection.getKey().getProviderId()).isEmpty()) {
+        	connectionRepository.addConnection(connection);
+        } else {
+        	connectionRepository.updateConnection(connection);
+        }
+    }
+    
     public User createUserInformation(String login, String password, String firstName, String lastName, String email,
-                                      String langKey) {
-        return createUserInformation(login, password, firstName, lastName, email, langKey, null);
+    		String langKey) {
+    	return createUserInformation(login, password, firstName, lastName, email, langKey, null);
     }
 
     public void updateUserInformation(String firstName, String lastName, String email, String langKey) {

@@ -14,6 +14,7 @@ import com.mycompany.myapp.web.rest.dto.ExternalAccountDTO;
 import com.mycompany.myapp.web.rest.dto.UserDTO;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,9 @@ import org.springframework.social.ApiException;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.UserProfile;
+import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.web.ProviderSignInAttempt;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.WebUtils;
 
@@ -34,6 +37,7 @@ import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +65,9 @@ public class AccountResource {
 
     @Inject
     private ConnectionFactoryLocator connectionFactoryLocator;
+    
+    @Inject
+    private UsersConnectionRepository usersConnectionRepository;
 
     /**
      * GET /rest/register -> get the details of an ongoing registration
@@ -90,6 +97,10 @@ public class AccountResource {
             produces = MediaType.TEXT_PLAIN_VALUE)
     @Timed
     public ResponseEntity<?> registerAccount(@Valid @RequestBody UserDTO userDTO, HttpServletRequest request) {
+    	if (StringUtils.equals(request.getRemoteUser(), userDTO.getLogin()) && isSocialRegistration(request)) {
+    		return registerExternalAccount(userDTO, request);
+    	}
+    	
         return userRepository.findOneByLogin(userDTO.getLogin())
             .map(user -> new ResponseEntity<>("login already in use", HttpStatus.BAD_REQUEST))
             .orElseGet(() -> {
@@ -270,6 +281,49 @@ public class AccountResource {
         return userService.completePasswordReset(newPassword, key)
               .map(user -> new ResponseEntity<String>(HttpStatus.OK)).orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
     }
+    
+    /**
+     * GET  /account/connections -> get the user's social connections.
+     */
+    @RequestMapping(value = "/account/connections",
+    		method = RequestMethod.GET,
+    		produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    ResponseEntity<List<ExternalAccountDTO>> getUserConnections(HttpServletRequest request) {
+    	String login = request.getRemoteUser();
+    	log.debug("REST request to get User's social connections : {}", login);
+    	
+    	List<ExternalAccountDTO> connections = new ArrayList<>();
+    	
+    	MultiValueMap<String, Connection<?>> allConnections = usersConnectionRepository.createConnectionRepository(login).findAllConnections();
+    	for (Entry<String, List<Connection<?>>> entry : allConnections.entrySet()) {
+    		ExternalAccountProvider externalAccountProvider = ExternalAccountProvider.caseInsensitiveValueOf(entry.getKey());
+    		boolean connected = !entry.getValue().isEmpty();
+    		DateTime expireTime = null;
+    		for (Connection<?> connect : entry.getValue()) {
+    			connected = true;
+    			expireTime = new DateTime(connect.createData().getExpireTime());
+    		}
+			ExternalAccountDTO externalAccount = new ExternalAccountDTO(externalAccountProvider, connected, expireTime);
+			connections.add(externalAccount);
+		}
+    	
+    	return new ResponseEntity<>(connections,
+                HttpStatus.OK);
+    }
+    
+    /**
+     * DELETE  /account/connections/{providerId} -> delete the user's social connection.
+     */
+    @RequestMapping(value = "/account/connections/{providerId}",
+    		method = RequestMethod.DELETE)
+    @Timed
+    void deleteUserConnections(HttpServletRequest request, @PathVariable String providerId) {
+    	String login = request.getRemoteUser();
+    	log.debug("REST request to delete User ({})'s social connection : {}", login, providerId);
+    	
+    	usersConnectionRepository.createConnectionRepository(login).removeConnections(providerId.toLowerCase());
+    }
 
     private boolean checkPasswordLength(String password) {
       return (!StringUtils.isEmpty(password) && password.length() >= UserDTO.PASSWORD_MIN_LENGTH && password.length() <= UserDTO.PASSWORD_MAX_LENGTH);
@@ -331,7 +385,7 @@ public class AccountResource {
             if (StringUtils.isBlank(firstName) || StringUtils.isBlank(lastName) || StringUtils.isBlank(email))
                 throw new ApiException(externalAccountProviderName, "provider failed to return required attributes");
 
-            userDTO = new UserDTO(firstName, lastName, email, externalAccount);
+            userDTO = new UserDTO(request.getRemoteUser(), firstName, lastName, email, externalAccount);
 
             // save the new UserDTO for later and clean up the HttpSession
 //            request.getSession().removeAttribute(ProviderSignInAttempt.SESSION_ATTRIBUTE);
@@ -353,7 +407,7 @@ public class AccountResource {
             WebUtils.getSessionAttribute(request, ProviderSignInAttempt.SESSION_ATTRIBUTE) != null;
     }
 
-    private ResponseEntity<String> registerExternalAccount(UserDTO currentRequestDTO, HttpServletRequest request) {
+    private ResponseEntity<String> registerExternalAccount(UserDTO currentRequestDTO, final HttpServletRequest request) {
         log.debug("Creating user from previous external authentication");
 
         // get the information from the social provider as a UserDTO
@@ -361,27 +415,37 @@ public class AccountResource {
 
         ProviderSignInAttempt attempt = (ProviderSignInAttempt) WebUtils.getSessionAttribute(request, ProviderSignInAttempt.SESSION_ATTRIBUTE);
         Connection<?> connection = attempt.getConnection(connectionFactoryLocator);
+
+        // cleanup the social stuff that we've been keeping in the session
+        request.getSession().removeAttribute(EXTERNAL_AUTH_AS_USERDTO_KEY);
         
         return userService.getUserBySocialConnection(connection)
         .map(existingUser -> {
-            return new ResponseEntity<>("The external login is already linked to another User", HttpStatus.BAD_REQUEST);
+    		return new ResponseEntity<>("The external login is already linked to another User", HttpStatus.BAD_REQUEST);
         })
         .orElseGet(() -> {
-        	// use the email supplied by the user, falling back on the email retrieved from the social login
-            String email;
-            if (StringUtils.isNotBlank(currentRequestDTO.getEmail())) {
-                email = currentRequestDTO.getEmail();
-            } else {
-                email = externalAuthDTO.getEmail();
-            }
+        	if (StringUtils.isEmpty(request.getRemoteUser())) {
+        		// use the email supplied by the user, falling back on the email retrieved from the social login
+        		String email;
+        		if (StringUtils.isNotBlank(currentRequestDTO.getEmail())) {
+        			email = currentRequestDTO.getEmail();
+        		} else {
+        			email = externalAuthDTO.getEmail();
+        		}
+        		
+        		userService.createUserInformation(currentRequestDTO.getLogin(), currentRequestDTO.getPassword(), externalAuthDTO.getFirstName(),
+        				externalAuthDTO.getLastName(), email.toLowerCase(), currentRequestDTO.getLangKey(), connection);
 
-            userService.createUserInformation(currentRequestDTO.getLogin(), currentRequestDTO.getPassword(), externalAuthDTO.getFirstName(),
-            		externalAuthDTO.getLastName(), email.toLowerCase(), currentRequestDTO.getLangKey(), connection);
-
-            // cleanup the social stuff that we've been keeping in the session
-            request.getSession().removeAttribute(EXTERNAL_AUTH_AS_USERDTO_KEY);
-
-            return new ResponseEntity<String>(HttpStatus.CREATED);
+                return new ResponseEntity<String>(HttpStatus.CREATED);
+        	} else {
+            	return userRepository.findOneByLogin(request.getRemoteUser()).map(existingUser -> {
+            		userService.addConnection(request.getRemoteUser(), connection);
+            		return new ResponseEntity<String>(HttpStatus.CREATED);
+            	})
+            	.orElseGet(() -> {
+            		return new ResponseEntity<>("Failed to load user account", HttpStatus.INTERNAL_SERVER_ERROR);
+            	});
+        	}
         });
 
         

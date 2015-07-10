@@ -64,7 +64,8 @@ public class UserDTO {
     	this(login, password, firstName, lastName, email, langKey, roles, null);
     }
 
-    public UserDTO(String firstName, String lastName, String email, ExternalAccountDTO externalAccount) {
+    public UserDTO(String login, String firstName, String lastName, String email, ExternalAccountDTO externalAccount) {
+        this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;

@@ -1,0 +1,15 @@
+{
+    "connections": {
+        "title": "Social Connections for [<b>{{username}}</b>]",
+        "table": {
+            "provider": "Provider",
+            "operations": "Operations",
+            "btnAdd": "Connect",
+            "btnDelete": "Disconnect"
+        },
+        "messages": {
+            "success": "<strong>Connection deleted!</strong>",
+            "error": "<strong>An error has occurred!</strong> The connection could not be deleted."
+        }
+    }
+}

@@ -34,16 +34,14 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableSocial
-public class SocialConfiger implements SocialConfigurer {
-    private final Logger log = LoggerFactory.getLogger(SocialConfiger.class);
+public class SocialConfigurationAdaptor implements SocialConfigurer {
+    private final Logger log = LoggerFactory.getLogger(SocialConfigurationAdaptor.class);
 
     @Inject
     private DataSource dataSource;
     
     @Inject
     private ConnectionSignUp signup;
-    
-    private JdbcUsersConnectionRepository usersConnectionRepository;
     
     @Override
     public void addConnectionFactories(ConnectionFactoryConfigurer connectionFactoryConfigurer, Environment environment) {
@@ -81,12 +79,9 @@ public class SocialConfiger implements SocialConfigurer {
 
     @Override
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
-    	if (usersConnectionRepository == null) {
-	        usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, Encryptors.noOpText());
-	        usersConnectionRepository.setTablePrefix("JHI_");
-	        usersConnectionRepository.setConnectionSignUp(signup);
-    	}
-        
+        JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, Encryptors.noOpText());
+        usersConnectionRepository.setTablePrefix("JHI_");
+        usersConnectionRepository.setConnectionSignUp(signup);
         return usersConnectionRepository;
     }
 
@@ -101,8 +96,8 @@ public class SocialConfiger implements SocialConfigurer {
     }
     
     @Bean
-    public ProviderSignInController providerSignInController(ConnectionFactoryLocator connectionFactoryLocator, SignInAdapter signInAdapter) {
-        ProviderSignInController providerSigninController = new ProviderSignInController(connectionFactoryLocator, getUsersConnectionRepository(connectionFactoryLocator), signInAdapter);
+    public ProviderSignInController providerSignInController(ConnectionFactoryLocator connectionFactoryLocator, UsersConnectionRepository usersConnectionRepository, SignInAdapter signInAdapter) {
+        ProviderSignInController providerSigninController = new ProviderSignInController(connectionFactoryLocator, usersConnectionRepository, signInAdapter);
         providerSigninController.setSignUpUrl("/#/register-social");
         providerSigninController.setSignInUrl("/#/login");
         return providerSigninController;
