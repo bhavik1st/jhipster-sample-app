@@ -40,9 +40,6 @@ public class SocialConfigurationAdaptor implements SocialConfigurer {
     @Inject
     private DataSource dataSource;
     
-    @Inject
-    private ConnectionSignUp signup;
-    
     @Override
     public void addConnectionFactories(ConnectionFactoryConfigurer connectionFactoryConfigurer, Environment environment) {
         // google configuration
@@ -81,7 +78,6 @@ public class SocialConfigurationAdaptor implements SocialConfigurer {
     public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
         JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator, Encryptors.noOpText());
         usersConnectionRepository.setTablePrefix("JHI_");
-        usersConnectionRepository.setConnectionSignUp(signup);
         return usersConnectionRepository;
     }
 
