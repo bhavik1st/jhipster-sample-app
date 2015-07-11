@@ -11,7 +11,7 @@ angular.module('jhipsterApp')
             restrict: 'E',
             replace: true,
             transclude: true,
-            link: function(scope, element, attrs, ctrl, transclude) {
+            link: function(scope, element, attrs) {
                 scope.$watch(attrs['externalAccountProvider'],
                     function(externalAccountProvider) {
                         if (externalAccountProvider !== undefined) {
@@ -39,25 +39,17 @@ angular.module('jhipsterApp')
 
                             // add classes common to both block and button styles.  for example, "btn-facebook" and "fa-facebook".
                             btn.addClass('btn-' + clientSideProviderName);
-                            if (clientSideProviderName === 'google') {
-                                // workaround for google
-                            	btn.find('i').addClass("fa-google-plus");
-                            } else {
-                            	btn.find('i').addClass("fa-" + clientSideProviderName);
-                            }
-                            
-                            // include whatever content the caller included in our element
-                            btn.append(transclude());
+                            btn.find('i').addClass("fa-" + clientSideProviderName);
                         }
                     }
                 );
             },
             template:function(element, attrs){
             	if (attrs['type'] === 'icon') {
-            		return '<a class="btn"><i class="fa"></i></a>';
+            		return '<a class="btn"><i class="fa"></i><ng-transclude></ng-transclude></a>';
             	} else {
             		return '<form method="POST" action="#">' +
-	            		'<button class="btn" type="submit"><i class="fa"></i></button>' +
+	            		'<button class="btn" type="submit"><i class="fa"></i><ng-transclude></ng-transclude></button>' +
 	            		'<input name="scope" type="hidden" />' +
 	            		'<input name="_csrf" type="hidden" />' +
 	            		'</form>';
